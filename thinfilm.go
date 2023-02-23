@@ -25,7 +25,7 @@ const (
 	n1j = -complex(0, 1)
 )
 
-func MatMulVec2C(A Mat2C,B Vec2C) Vec2C {
+func MatMulVec2C(A Mat2C, B Vec2C) Vec2C {
 	// TODO: not as fast as it could be, bug brandon about it later
 	a := A[0][0]
 	b := A[0][1]
@@ -205,23 +205,23 @@ func MacleodMatrixS(lambda, d float64, n, theta complex128) Mat2C {
 
 }
 
-func Macleodr(M Vec2C, eta0) complex128 {
-	Y := M[1]/M[0]
+func Macleodr(M Vec2C, eta0 complex128) complex128 {
+	Y := M[1] / M[0]
 	num := eta0 - Y
 	den := eta0 + Y
-	return num/den
+	return num / den
 }
 
-func MacleodStackrt(pol PolState, lambda float64, stack []NT, aoi float64, vacAmbient bool) (complex128){
+func MacleodStackrt(pol PolState, lambda float64, stack []NT, aoi float64, vacAmbient bool) complex128 {
 	// only returns r for now
 
 	var (
 		n0    complex128
 		n1    complex128
 		theta complex128
+		eta0  complex128
 		Amat  Mat2C
 		Etam  Vec2C
-		BCvec Vec2C
 	)
 
 	if len(stack) == 0 {
@@ -242,10 +242,10 @@ func MacleodStackrt(pol PolState, lambda float64, stack []NT, aoi float64, vacAm
 		{0, 1},
 	}
 
-	if pol == Ppol{
+	if pol == Ppol {
 		// define eta ambient
-		eta0 := n0/cos0c
-		
+		eta0 = n0 / cos0c
+
 		for _, nt := range stack {
 			n1 = nt.N
 			theta1 := SnellAOR(n0, n1, theta)
@@ -256,13 +256,13 @@ func MacleodStackrt(pol PolState, lambda float64, stack []NT, aoi float64, vacAm
 		}
 
 		// define eta_medium
-		eta := n1/cos0c
-		Etam := Vec2C{
-			1,eta,
+		eta := n1 / cos0c
+		Etam = Vec2C{
+			1, eta,
 		}
-	} else if pol == Spol{
+	} else if pol == Spol {
 		// define eta ambient
-		eta0 := n0*cos0c
+		eta0 = n0 * cos0c
 		for _, nt := range stack {
 			n1 = nt.N
 			theta1 := SnellAOR(n0, n1, theta)
@@ -273,17 +273,15 @@ func MacleodStackrt(pol PolState, lambda float64, stack []NT, aoi float64, vacAm
 		}
 
 		// define eta medium
-		eta := n1*cos0c
-		Etam := Vec2C{
-			1,eta
+		eta := n1 * cos0c
+		Etam = Vec2C{
+			1, eta,
 		}
 	}
 
 	// Compute the B and C coefficients
-	BCVec := MatMulVec2C(Amat,Etam)
-	
-	return Macleodr(BCVec,eta0)
+	BCVec := MatMulVec2C(Amat, Etam)
 
-
+	return Macleodr(BCVec, eta0)
 
 }
